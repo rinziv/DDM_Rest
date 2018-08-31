@@ -4,6 +4,8 @@ from flask_cors import CORS
 from flask_restful import Resource, Api
 from flask_apidoc import ApiDoc
 
+import json
+
 import uuid
 
 __author__ = "Salvo Rinzivillo"
@@ -33,7 +35,12 @@ class ClusteringExperiment(Resource):
         """
         token = str(uuid.uuid4())
 
-        return {'token':token, 'type': 'general'}, SUCCESS
+        res = json.load(open("resources/kmeans.json"))
+        res['token'] = token
+        res['type'] = 'general'
+
+
+        return res, SUCCESS
 
 
 api.add_resource(ClusteringExperiment, '/api/ClusteringExperiment')
