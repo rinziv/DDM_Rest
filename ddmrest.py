@@ -29,11 +29,14 @@ NOT_IMPLEMENTED = 501
 
 class ClusteringExperiment(Resource):
 
-    def get(self):
+    def post(self):
         """
             @api {get} /api/ClusteringExperiment Create
         """
         token = str(uuid.uuid4())
+
+        k = request.form['k']
+        print(k)
 
         res = json.load(open("resources/kmeans.json"))
         res['token'] = token
