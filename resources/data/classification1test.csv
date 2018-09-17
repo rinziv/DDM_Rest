@@ -1,0 +1,5 @@
+Contract, Sex, Minutes, Churn
+Classic, F, 30, YES
+Travel, M, 60, NO
+Travel, F, 100, NO
+Travel, M, 100, YES

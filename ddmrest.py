@@ -12,6 +12,7 @@ import ddm.didactic_kmeans as didactic_kmeans
 import ddm.didactic_dbscan as didactic_dbscan
 import ddm.didactic_hierarchical as didactic_hier
 import ddm.didactic_apriori as didactic_apriori
+import ddm.didactic_classificationtree as didactic_tree
 
 
 __author__ = "Salvo Rinzivillo, Riccardo Guidotti"
@@ -38,6 +39,13 @@ config = json.load(open("resources/configuration.json"))
 
 
 # git submodule update --init --recursive --remote
+
+def read_transactional_dataset(filename):
+    data = open(filename, 'r')
+    dataset = list()
+    for row in data:
+        dataset.append(row.strip().split(','))
+    return dataset
 
 
 class KmeansExperiment(Resource):
@@ -237,14 +245,6 @@ class HierarchicalExperiment(Resource):
         return res, SUCCESS
 
 
-def read_transactional_dataset(filename):
-    data = open(filename, 'r')
-    dataset = list()
-    for row in data:
-        dataset.append(row.strip().split(','))
-    return dataset
-
-
 class AprioriExperiment(Resource):
 
     def __init__(self):
@@ -311,9 +311,36 @@ class AprioriExperiment(Resource):
 
 class DecisionTreeExperiment(Resource):
 
-    def __run_experiment(self, token, params):
+    def __init__(self):
+        tree_config = config['algorithms']['tree']['parameters']
+        param2index = {e['key']: i for i, e in enumerate(tree_config)}
 
-        res = json.load(open("resources/tree.json"))
+        self.dataset_id = None
+        self.train = None
+        self.test = None
+        self.target = None
+
+        self.split_function = tree_config[param2index['split_function']]['value']
+        self.min_samples_split = tree_config[param2index['min_samples_split']]['value']
+        self.min_samples_leaf = tree_config[param2index['min_samples_leaf']]['value']
+
+    def __run_experiment(self, token):
+
+        # res = json.load(open("resources/tree.json"))
+        if self.split_function in ['me', 'misc err']:
+            fun = didactic_tree.error_rate
+        elif self.split_function in ['gini', 'gini index']:
+            fun = didactic_tree.gini
+        else:
+            fun = didactic_tree.error_rate
+        tree = didactic_tree.DidatticClassificationTree(fun=fun, fun_name=self.split_function,
+                                                        min_samples_split=self.min_samples_split,
+                                                        min_samples_leaf=self.min_samples_leaf, step_by_step=False)
+        tree.fit(self.train, self.target, plot_figures=False)
+        self.test['Predicted'] = tree.predict(self.test)
+        tree.evaluate(self.test)
+        res = tree.get_jdata()
+
         res['token'] = token
         res['type'] = 'general'
 
@@ -325,17 +352,24 @@ class DecisionTreeExperiment(Resource):
         """
         token = str(uuid.uuid4())
 
-        split_function = request.args['split_function'] if 'split_function' in request.args else 'me'
-        min_samples_split = request.args['min_samples_split'] if 'min_samples_split' in request.args else 2
-        min_samples_leaf = request.args['min_samples_leaf'] if 'min_samples_leaf' in request.args else 1
+        dataset_config = config['algorithms']['tree']['dataset']
+        dataset2index = {e['key']: i for i, e in enumerate(dataset_config)}
 
-        params = {
-            'split_function': split_function,
-            'min_samples_split': min_samples_split,
-            'min_samples_leaf': min_samples_leaf,
-        }
+        self.dataset_id = request.args['dataset']
+        self.target = request.args['target']
+        self.train = pd.read_csv(dataset_config[dataset2index[self.dataset_id]]['path_train'],
+                                 skipinitialspace=True, delimiter=',')
+        self.test = pd.read_csv(dataset_config[dataset2index[self.dataset_id]]['path_test'],
+                                skipinitialspace=True, delimiter=',')
 
-        res = self.__run_experiment(token, params)
+        self.split_function = request.args['split_function'] \
+            if 'split_function' in request.args else self.split_function
+        self.min_samples_split = int(request.args['min_samples_split']) \
+            if 'min_samples_split' in request.args else self.min_samples_split
+        self.min_samples_leaf = int(request.args['min_samples_leaf']) \
+            if 'min_samples_leaf' in request.args else self.min_samples_leaf
+
+        res = self.__run_experiment(token)
 
         return res, SUCCESS
 
@@ -345,17 +379,24 @@ class DecisionTreeExperiment(Resource):
         """
         token = str(uuid.uuid4())
 
-        split_function = request.form['split_function'] if 'split_function' in request.form else 'me'
-        min_samples_split = request.form['min_samples_split'] if 'min_samples_split' in request.form else 2
-        min_samples_leaf = request.form['min_samples_leaf'] if 'min_samples_leaf' in request.form else 1
+        dataset_config = config['algorithms']['tree']['dataset']
+        dataset2index = {e['key']: i for i, e in enumerate(dataset_config)}
 
-        params = {
-            'split_function': split_function,
-            'min_samples_split': min_samples_split,
-            'min_samples_leaf': min_samples_leaf,
-        }
+        self.dataset_id = request.form['dataset']
+        self.target = request.form['target']
+        self.train = pd.read_csv(dataset_config[dataset2index[self.dataset_id]]['path_train'],
+                                 skipinitialspace=True, delimiter=',')
+        self.test = pd.read_csv(dataset_config[dataset2index[self.dataset_id]]['path_test'],
+                                skipinitialspace=True, delimiter=',')
 
-        res = self.__run_experiment(token, params)
+        self.split_function = request.form['split_function'] \
+            if 'split_function' in request.form else self.split_function
+        self.min_samples_split = int(request.form['min_samples_split']) \
+            if 'min_samples_split' in request.form else self.min_samples_split
+        self.min_samples_leaf = int(request.form['min_samples_leaf']) \
+            if 'min_samples_leaf' in request.form else self.min_samples_leaf
+
+        res = self.__run_experiment(token)
 
         return res, SUCCESS
 

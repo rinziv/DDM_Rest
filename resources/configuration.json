@@ -27,17 +27,17 @@
         {
           "key": "dataset1",
           "label": "Dataset 1",
-          "path": "resources/data/clustering_dataset1.csv"
+          "path": "resources/data/clustering1.csv"
         },
         {
           "key": "dataset2",
           "label": "Dataset 2",
-          "path": "resources/data/clustering_dataset2.csv"
+          "path": "resources/data/clustering2.csv"
         },
         {
           "key": "dataset3",
           "label": "Dataset 3",
-          "path": "resources/data/clustering_dataset3.csv"
+          "path": "resources/data/clustering3.csv"
         }
       ],
       "distance_function": [
@@ -73,17 +73,17 @@
         {
           "key": "dataset1",
           "label": "Dataset 1",
-          "path": "resources/data/clustering_dataset1.csv"
+          "path": "resources/data/clustering1.csv"
         },
         {
           "key": "dataset2",
           "label": "Dataset 2",
-          "path": "resources/data/clustering_dataset2.csv"
+          "path": "resources/data/clustering2.csv"
         },
         {
           "key": "dataset3",
           "label": "Dataset 3",
-          "path": "resources/data/clustering_dataset3.csv"
+          "path": "resources/data/clustering3.csv"
         }
       ]
     },
@@ -114,17 +114,17 @@
         {
           "key": "dataset1",
           "label": "Dataset 1",
-          "path": "resources/data/clustering_dataset1.csv"
+          "path": "resources/data/clustering1.csv"
         },
         {
           "key": "dataset2",
           "label": "Dataset 2",
-          "path": "resources/data/clustering_dataset2.csv"
+          "path": "resources/data/clustering2.csv"
         },
         {
           "key": "dataset3",
           "label": "Dataset 3",
-          "path": "resources/data/clustering_dataset3.csv"
+          "path": "resources/data/clustering3.csv"
         }
       ],
       "distance_function": [
@@ -170,17 +170,64 @@
         {
           "key": "dataset1",
           "label": "Dataset 1",
-          "path": "resources/data/patterns_dataset1.csv"
+          "path": "resources/data/patterns1.csv"
         },
         {
           "key": "dataset2",
           "label": "Dataset 2",
-          "path": "resources/data/patterns_dataset2.csv"
+          "path": "resources/data/patterns2.csv"
         },
         {
           "key": "dataset3",
           "label": "Dataset 3",
-          "path": "resources/data/patterns_dataset3.csv"
+          "path": "resources/data/patterns3.csv"
+        }
+      ]
+    },
+    "tree": {
+      "parameters": [
+        {
+          "key": "dataset",
+          "type": "dataset",
+          "value": "dataset1"
+        },
+        {
+          "key": "target",
+          "type": "string",
+          "value": "Churn"
+        },
+        {
+          "key": "split_function",
+          "type": "split_function",
+          "value": "me"
+        },
+        {
+          "key": "min_samples_leaf",
+          "type": "integer",
+          "value": 1
+        },
+        {
+          "key": "min_samples_split",
+          "type": "integer",
+          "value": 2
+        }
+      ],
+      "dataset": [
+        {
+          "key": "dataset1",
+          "label": "Dataset 1",
+          "path_train": "resources/data/classification1train.csv",
+          "path_test": "resources/data/classification1test.csv"
+        }
+      ],
+      "split_function": [
+        {
+          "key": "me",
+          "label": "Misclassification Error"
+        },
+        {
+          "key": "gini",
+          "label": "Gini Index"
         }
       ]
     }
