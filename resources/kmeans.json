@@ -1,4 +1,4 @@
-{'data': [[4, 2],
+{"data": [[4, 2],
   [10, 5],
   [6, 2],
   [7, 1],
@@ -7,10 +7,10 @@
   [7, 5],
   [8, 6],
   [8, 5]],
- 'iterations': [{'centers': [[10, 5], [6, 2]],
-   'labels': [1, 0, 1, 1, 1, 1, 0, 0, 0]},
-  {'centers': [[8.25, 5.25], [6.4, 1.8]],
-   'labels': [1, 0, 1, 1, 1, 1, 0, 0, 0]}],
- 'parameters': {'nbr_clusters': 2,
-  'centroid_indexs': [1, 2],
-  'distance': 'euclidean'}}
+ "iterations": [{"centers": [[10, 5], [6, 2]],
+   "labels": [1, 0, 1, 1, 1, 1, 0, 0, 0]},
+  {"centers": [[8.25, 5.25], [6.4, 1.8]],
+   "labels": [1, 0, 1, 1, 1, 1, 0, 0, 0]}],
+ "parameters": {"nbr_clusters": 2,
+  "centroid_indexs": [1, 2],
+  "distance": "euclidean"}}

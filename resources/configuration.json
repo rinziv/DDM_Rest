@@ -1,0 +1,50 @@
+{
+  "algorithms": {
+    "kmeans": {
+      "parameters": [
+          {
+            "key": "dataset",
+            "type": "dataset",
+            "value": "dataset1"
+          },
+          {
+            "key": "c1",
+            "type": "integer",
+            "value": 2,
+          },
+          {
+            "key": "c2",
+            "type": "integer",
+            "value": 0,
+          },
+          {
+            "key": "distance",
+            "type": "distance_function",
+            "value": "euclidean",
+          }
+      ],
+      "dataset": [
+        {
+          "key": "dataset1",
+          "label": "Dataset 1",
+          "path": "resources/data/kmeans_db1.csv",
+        },
+        {
+          "key": "dataset2",
+          "label": "Dataset 2",
+          "path": "resources/data/kmeans_db2.csv",
+        }
+      ],
+      "distance_function": [
+        {
+          "key": "euclidean",
+          "label": "Euclidean"
+        },
+        {
+          "key": "manhattan",
+          "label": "Manhattan",
+        }
+      ]
+    }
+  }
+}
