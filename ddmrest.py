@@ -31,7 +31,13 @@ UNAVAILABLE = 451
 NOT_IMPLEMENTED = 501
 
 
+config = json.load(open("resources/configuration.json"))
+
+
 class KmeansExperiment(Resource):
+
+    def __init__(self):
+        self.kmeans_config = config['algorithms']['kmeans']['parameters']
 
     def __run_experiment(self, token, params):
 
@@ -47,11 +53,13 @@ class KmeansExperiment(Resource):
         """
         token = str(uuid.uuid4())
 
-        centroid_indexs = request.args['centroid_indexs'] if 'centroid_indexs' in request.args else [0, 1]
-        distance = request.args['distance'] if 'distance' in request.args else 'euclidean'
+        c1 = request.args['c1'] if 'c1' in request.args else self.kmeans_config['c1']
+        c2 = request.args['c2'] if 'c2' in request.args else self.kmeans_config['c2']
+        distance = request.args['distance'] if 'distance' in request.args else self.kmeans_config['distance']
 
         params = {
-            'centroid_indexs': centroid_indexs,
+            'c1': c1,
+            'c2': c2,
             'distance': distance,
         }
 
@@ -65,11 +73,13 @@ class KmeansExperiment(Resource):
         """
         token = str(uuid.uuid4())
 
-        centroid_indexs = request.form['centroid_indexs'] if 'centroid_indexs' in request.form else [0, 1]
-        distance = request.form['distance'] if 'distance' in request.form else 'euclidean'
+        c1 = request.form['c1'] if 'c1' in request.form else self.kmeans_config['c1']
+        c2 = request.form['c2'] if 'c2' in request.form else self.kmeans_config['c2']
+        distance = request.form['distance'] if 'distance' in request.form else self.kmeans_config['distance']
 
         params = {
-            'centroid_indexs': centroid_indexs,
+            'c1': c1,
+            'c2': c2,
             'distance': distance,
         }
 
