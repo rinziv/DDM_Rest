@@ -1,21 +1,20 @@
-import ddm.didactic_kmeans as didactic_kmeans
-import random
-
-from flask import Flask, request
-
-from flask_cors import CORS
-from flask_restful import Resource, Api
-from flask_apidoc import ApiDoc
-
-
 import json
 import uuid
 
 import pandas as pd
 
+from flask import Flask, request
+from flask_cors import CORS
+from flask_restful import Resource, Api
+from flask_apidoc import ApiDoc
+
+import ddm.didactic_kmeans as didactic_kmeans
+import ddm.didactic_dbscan as didactic_dbscan
+import ddm.didactic_hierarchical as didactic_hier
+import ddm.didactic_apriori as didactic_apriori
 
 
-__author__ = "Salvo Rinzivillo"
+__author__ = "Salvo Rinzivillo, Riccardo Guidotti"
 __email__ = "rinzivillo@isti.cnr.it"
 
 app = Flask(__name__)
@@ -38,6 +37,9 @@ NOT_IMPLEMENTED = 501
 config = json.load(open("resources/configuration.json"))
 
 
+# git submodule update --init --recursive --remote
+
+
 class KmeansExperiment(Resource):
 
     def __init__(self):
@@ -53,9 +55,9 @@ class KmeansExperiment(Resource):
 
     def __run_experiment(self, token):
 
-        res_static = json.load(open("resources/kmeans.json"))
+        # res_static = json.load(open("resources/kmeans.json"))
         kmeans = didactic_kmeans.DidatticKMeans(K=2, centroid_indexs=(self.c1, self.c2), dist=self.distance)
-        kmeans.fit(self.dataset, step_by_step=False)
+        kmeans.fit(self.dataset, step_by_step=False, plot_figures=False)
         res = kmeans.get_jdata()
 
         res['token'] = token
@@ -75,8 +77,8 @@ class KmeansExperiment(Resource):
         self.dataset_id = request.args['dataset']
         self.dataset = pd.read_csv(dataset_config[dataset2index[self.dataset_id]]['path'], header=None).values
 
-        self.c1 = request.args['c1'] if 'c1' in request.args else self.c1
-        self.c2 = request.args['c2'] if 'c2' in request.args else self.c2
+        self.c1 = int(request.args['c1']) if 'c1' in request.args else self.c1
+        self.c2 = int(request.args['c2']) if 'c2' in request.args else self.c2
         self.distance = request.args['distance'] if 'distance' in request.args else self.distance
 
         res = self.__run_experiment(token)
@@ -95,8 +97,8 @@ class KmeansExperiment(Resource):
         self.dataset_id = request.form['dataset']
         self.dataset = pd.read_csv(dataset_config[dataset2index[self.dataset_id]]['path'], header=None).values
 
-        self.c1 = request.form['c1'] if 'c1' in request.form else self.c1
-        self.c2 = request.form['c2'] if 'c2' in request.form else self.c2
+        self.c1 = int(request.form['c1']) if 'c1' in request.form else self.c1
+        self.c2 = int(request.form['c2']) if 'c2' in request.form else self.c2
         self.distance = request.form['distance'] if 'distance' in request.form else self.distance
 
         res = self.__run_experiment(token)
@@ -106,9 +108,23 @@ class KmeansExperiment(Resource):
 
 class DbscanExperiment(Resource):
 
-    def __run_experiment(self, token, params):
+    def __init__(self):
+        dbscan_config = config['algorithms']['dbscan']['parameters']
+        param2index = {e['key']: i for i, e in enumerate(dbscan_config)}
 
-        res = json.load(open("resources/dbscan.json"))
+        self.dataset_id = None
+        self.dataset = None
+
+        self.eps = dbscan_config[param2index['eps']]['value']
+        self.min_pts = dbscan_config[param2index['min_pts']]['value']
+
+    def __run_experiment(self, token):
+
+        # res = json.load(open("resources/dbscan.json"))
+        dbscan = didactic_dbscan.DidatticDbscan(eps=self.eps, min_pts=self.min_pts)
+        dbscan.fit(self.dataset, step_by_step=False, plot_figures=False)
+        res = dbscan.get_jdata()
+
         res['token'] = token
         res['type'] = 'general'
 
@@ -120,15 +136,16 @@ class DbscanExperiment(Resource):
         """
         token = str(uuid.uuid4())
 
-        eps = request.args['eps'] if 'eps' in request.args else 1.8
-        min_pts = request.args['min_pts'] if 'min_pts' in request.args else 3
+        dataset_config = config['algorithms']['dbscan']['dataset']
+        dataset2index = {e['key']: i for i, e in enumerate(dataset_config)}
 
-        params = {
-            'eps': eps,
-            'min_pts': min_pts,
-        }
+        self.dataset_id = request.args['dataset']
+        self.dataset = pd.read_csv(dataset_config[dataset2index[self.dataset_id]]['path'], header=None).values
 
-        res = self.__run_experiment(token, params)
+        self.eps = float(request.args['eps']) if 'eps' in request.args else self.eps
+        self.min_pts = int(request.args['min_pts']) if 'min_pts' in request.args else self.min_pts
+
+        res = self.__run_experiment(token)
 
         return res, SUCCESS
 
@@ -138,24 +155,42 @@ class DbscanExperiment(Resource):
         """
         token = str(uuid.uuid4())
 
-        eps = request.form['eps'] if 'eps' in request.form else 1.8
-        min_pts = request.form['min_pts'] if 'min_pts' in request.form else 3
+        dataset_config = config['algorithms']['dbscan']['dataset']
+        dataset2index = {e['key']: i for i, e in enumerate(dataset_config)}
 
-        params = {
-            'eps': eps,
-            'min_pts': min_pts,
-        }
+        self.dataset_id = request.form['dataset']
+        self.dataset = pd.read_csv(dataset_config[dataset2index[self.dataset_id]]['path'], header=None).values
 
-        res = self.__run_experiment(token, params)
+        self.eps = float(request.form['eps']) if 'eps' in request.form else self.eps
+        self.min_pts = int(request.form['min_pts']) if 'min_pts' in request.form else self.min_pts
+
+        res = self.__run_experiment(token)
 
         return res, SUCCESS
 
 
 class HierarchicalExperiment(Resource):
 
-    def __run_experiment(self, token, params):
+    def __init__(self):
+        hierarchical_config = config['algorithms']['hierarchical']['parameters']
+        param2index = {e['key']: i for i, e in enumerate(hierarchical_config)}
 
-        res = json.load(open("resources/hierarchical.json"))
+        self.dataset_id = None
+        self.dataset = None
+
+        self.link_criteria = hierarchical_config[param2index['link_criteria']]['value']
+        self.distance = hierarchical_config[param2index['distance']]['value']
+        self.matrix_type = hierarchical_config[param2index['matrix_type']]['value']
+
+    def __run_experiment(self, token):
+
+        # res = json.load(open("resources/hierarchical.json"))
+
+        hier = didactic_hier.DidatticHierarchical()
+        use_distances = self.matrix_type == 'distance'
+        hier.fit(self.dataset, link_criteria=self.link_criteria, use_distances=use_distances, step_by_step=False,
+                 distance_type=self.distance, plot_figures=False)
+        res = hier.get_jdata()
         res['token'] = token
         res['type'] = 'general'
 
@@ -167,17 +202,17 @@ class HierarchicalExperiment(Resource):
         """
         token = str(uuid.uuid4())
 
-        link_criteria = request.args['link_criteria'] if 'link_criteria' in request.args else 'min'
-        distance = request.args['distance'] if 'distance' in request.args else 'euclidean'
-        matrix_type = request.args['matrix_type'] if 'matrix_type' in request.args else 'distance'
+        dataset_config = config['algorithms']['dbscan']['dataset']
+        dataset2index = {e['key']: i for i, e in enumerate(dataset_config)}
 
-        params = {
-            'link_criteria': link_criteria,
-            'distance': distance,
-            'matrix_type': matrix_type,
-        }
+        self.dataset_id = request.args['dataset']
+        self.dataset = pd.read_csv(dataset_config[dataset2index[self.dataset_id]]['path'], header=None).values
 
-        res = self.__run_experiment(token, params)
+        self.link_criteria = request.args['link_criteria'] if 'link_criteria' in request.args else self.link_criteria
+        self.distance = request.args['distance'] if 'distance' in request.args else self.distance
+        self.matrix_type = request.args['matrix_type'] if 'matrix_type' in request.args else self.matrix_type
+
+        res = self.__run_experiment(token)
 
         return res, SUCCESS
 
@@ -187,26 +222,49 @@ class HierarchicalExperiment(Resource):
         """
         token = str(uuid.uuid4())
 
-        link_criteria = request.form['link_criteria'] if 'link_criteria' in request.form else 'min'
-        distance = request.form['distance'] if 'distance' in request.form else 'euclidean'
-        matrix_type = request.form['matrix_type'] if 'matrix_type' in request.form else 'distance'
+        dataset_config = config['algorithms']['dbscan']['dataset']
+        dataset2index = {e['key']: i for i, e in enumerate(dataset_config)}
 
-        params = {
-            'link_criteria': link_criteria,
-            'distance': distance,
-            'matrix_type': matrix_type,
-        }
+        self.dataset_id = request.form['dataset']
+        self.dataset = pd.read_csv(dataset_config[dataset2index[self.dataset_id]]['path'], header=None).values
 
-        res = self.__run_experiment(token, params)
+        self.link_criteria = request.form['link_criteria'] if 'link_criteria' in request.form else self.link_criteria
+        self.distance = request.form['distance'] if 'distance' in request.form else self.distance
+        self.matrix_type = request.form['matrix_type'] if 'matrix_type' in request.form else self.matrix_type
+
+        res = self.__run_experiment(token)
 
         return res, SUCCESS
 
 
+def read_transactional_dataset(filename):
+    data = open(filename, 'r')
+    dataset = list()
+    for row in data:
+        dataset.append(row.strip().split(','))
+    return dataset
+
+
 class AprioriExperiment(Resource):
 
-    def __run_experiment(self, token, params):
+    def __init__(self):
+        apriori_config = config['algorithms']['apriori']['parameters']
+        param2index = {e['key']: i for i, e in enumerate(apriori_config)}
 
-        res = json.load(open("resources/apriori.json"))
+        self.dataset_id = None
+        self.dataset = None
+
+        self.min_sup = apriori_config[param2index['min_sup']]['value']
+        self.min_conf = apriori_config[param2index['min_conf']]['value']
+
+    def __run_experiment(self, token):
+
+        # res = json.load(open("resources/apriori.json"))
+        apriori = didactic_apriori.DidatticApriori(min_sup=self.min_sup, sup_type='r')
+        apriori.fit(self.dataset, step_by_step=False)
+        apriori.extract_rules(min_conf=self.min_conf)
+        res = apriori.get_jdata()
+
         res['token'] = token
         res['type'] = 'general'
 
@@ -218,17 +276,16 @@ class AprioriExperiment(Resource):
         """
         token = str(uuid.uuid4())
 
-        min_sup = request.args['min_sup'] if 'min_sup' in request.args else 0.3
-        sup_type = 'r'
-        min_conf = request.args['min_conf'] if 'min_conf' in request.args else 0.7
+        dataset_config = config['algorithms']['apriori']['dataset']
+        dataset2index = {e['key']: i for i, e in enumerate(dataset_config)}
 
-        params = {
-            'min_sup': min_sup,
-            'sup_type': sup_type,
-            'min_conf': min_conf,
-        }
+        self.dataset_id = request.args['dataset']
+        self.dataset = read_transactional_dataset(dataset_config[dataset2index[self.dataset_id]]['path'])
 
-        res = self.__run_experiment(token, params)
+        self.min_sup = float(request.args['min_sup']) if 'min_sup' in request.args else self.min_sup
+        self.min_conf = float(request.args['min_conf']) if 'min_conf' in request.args else self.min_conf
+
+        res = self.__run_experiment(token)
 
         return res, SUCCESS
 
@@ -238,17 +295,16 @@ class AprioriExperiment(Resource):
         """
         token = str(uuid.uuid4())
 
-        min_sup = request.form['min_sup'] if 'min_sup' in request.form else 0.3
-        sup_type = 'r'
-        min_conf = request.form['min_conf'] if 'min_conf' in request.form else 0.7
+        dataset_config = config['algorithms']['apriori']['dataset']
+        dataset2index = {e['key']: i for i, e in enumerate(dataset_config)}
 
-        params = {
-            'min_sup': min_sup,
-            'sup_type': sup_type,
-            'min_conf': min_conf,
-        }
+        self.dataset_id = request.form['dataset']
+        self.dataset = read_transactional_dataset(dataset_config[dataset2index[self.dataset_id]]['path'])
 
-        res = self.__run_experiment(token, params)
+        self.min_sup = float(request.form['min_sup']) if 'min_sup' in request.form else self.min_sup
+        self.min_conf = float(request.form['min_conf']) if 'min_conf' in request.form else self.min_conf
+
+        res = self.__run_experiment(token)
 
         return res, SUCCESS
 

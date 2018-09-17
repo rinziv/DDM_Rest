@@ -46,8 +46,141 @@
           "label": "Euclidean"
         },
         {
-          "key": "manhattan",
+          "key": "cityblock",
           "label": "Manhattan"
+        }
+      ]
+    },
+    "dbscan": {
+      "parameters": [
+          {
+            "key": "dataset",
+            "type": "dataset",
+            "value": "dataset1"
+          },
+          {
+            "key": "eps",
+            "type": "float",
+            "value": 1.8
+          },
+          {
+            "key": "min_pts",
+            "type": "integer",
+            "value": 3
+          }
+      ],
+      "dataset": [
+        {
+          "key": "dataset1",
+          "label": "Dataset 1",
+          "path": "resources/data/clustering_dataset1.csv"
+        },
+        {
+          "key": "dataset2",
+          "label": "Dataset 2",
+          "path": "resources/data/clustering_dataset2.csv"
+        },
+        {
+          "key": "dataset3",
+          "label": "Dataset 3",
+          "path": "resources/data/clustering_dataset3.csv"
+        }
+      ]
+    },
+    "hierarchical": {
+      "parameters": [
+          {
+            "key": "dataset",
+            "type": "dataset",
+            "value": "dataset1"
+          },
+          {
+            "key": "link_criteria",
+            "type": "link_criteria",
+            "value": "min"
+          },
+          {
+            "key": "distance",
+            "type": "distance_function",
+            "value": "cityblock"
+          },
+          {
+            "key": "matrix_type",
+            "type": "matrix_type",
+            "value": "distance"
+          }
+      ],
+      "dataset": [
+        {
+          "key": "dataset1",
+          "label": "Dataset 1",
+          "path": "resources/data/clustering_dataset1.csv"
+        },
+        {
+          "key": "dataset2",
+          "label": "Dataset 2",
+          "path": "resources/data/clustering_dataset2.csv"
+        },
+        {
+          "key": "dataset3",
+          "label": "Dataset 3",
+          "path": "resources/data/clustering_dataset3.csv"
+        }
+      ],
+      "distance_function": [
+        {
+          "key": "euclidean",
+          "label": "Euclidean"
+        },
+        {
+          "key": "cityblock",
+          "label": "Manhattan"
+        }
+      ],
+      "matrix_type": [
+        {
+          "key": "distance",
+          "label": "Distance Matrix"
+        },
+        {
+          "key": "similarity",
+          "label": "Similarity Matrix"
+        }
+      ]
+    },
+    "apriori": {
+      "parameters": [
+        {
+          "key": "dataset",
+          "type": "dataset",
+          "value": "dataset1"
+        },
+        {
+          "key": "min_sup",
+          "type": "float",
+          "value": 0.3
+        },
+        {
+          "key": "min_conf",
+          "type": "float",
+          "value": 0.8
+        }
+      ],
+      "dataset": [
+        {
+          "key": "dataset1",
+          "label": "Dataset 1",
+          "path": "resources/data/patterns_dataset1.csv"
+        },
+        {
+          "key": "dataset2",
+          "label": "Dataset 2",
+          "path": "resources/data/patterns_dataset2.csv"
+        },
+        {
+          "key": "dataset3",
+          "label": "Dataset 3",
+          "path": "resources/data/patterns_dataset3.csv"
         }
       ]
     }
