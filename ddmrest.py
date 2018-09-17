@@ -1,4 +1,4 @@
-import ddm
+import ddm.didactic_kmeans as didactic_kmeans
 import random
 
 from flask import Flask, request
@@ -7,9 +7,13 @@ from flask_cors import CORS
 from flask_restful import Resource, Api
 from flask_apidoc import ApiDoc
 
-import json
 
+import json
 import uuid
+
+import pandas as pd
+
+
 
 __author__ = "Salvo Rinzivillo"
 __email__ = "rinzivillo@isti.cnr.it"
@@ -37,11 +41,23 @@ config = json.load(open("resources/configuration.json"))
 class KmeansExperiment(Resource):
 
     def __init__(self):
-        self.kmeans_config = config['algorithms']['kmeans']['parameters']
+        kmeans_config = config['algorithms']['kmeans']['parameters']
+        param2index = {e['key']: i for i, e in enumerate(kmeans_config)}
 
-    def __run_experiment(self, token, params):
+        self.dataset_id = None
+        self.dataset = None
 
-        res = json.load(open("resources/kmeans.json"))
+        self.c1 = kmeans_config[param2index['c1']]['value']
+        self.c2 = kmeans_config[param2index['c2']]['value']
+        self.distance = kmeans_config[param2index['distance']]['value']
+
+    def __run_experiment(self, token):
+
+        res_static = json.load(open("resources/kmeans.json"))
+        kmeans = didactic_kmeans.DidatticKMeans(K=2, centroid_indexs=(self.c1, self.c2), dist=self.distance)
+        kmeans.fit(self.dataset, step_by_step=False)
+        res = kmeans.get_jdata()
+
         res['token'] = token
         res['type'] = 'general'
 
@@ -53,17 +69,17 @@ class KmeansExperiment(Resource):
         """
         token = str(uuid.uuid4())
 
-        c1 = request.args['c1'] if 'c1' in request.args else self.kmeans_config['c1']
-        c2 = request.args['c2'] if 'c2' in request.args else self.kmeans_config['c2']
-        distance = request.args['distance'] if 'distance' in request.args else self.kmeans_config['distance']
+        dataset_config = config['algorithms']['kmeans']['dataset']
+        dataset2index = {e['key']: i for i, e in enumerate(dataset_config)}
 
-        params = {
-            'c1': c1,
-            'c2': c2,
-            'distance': distance,
-        }
+        self.dataset_id = request.args['dataset']
+        self.dataset = pd.read_csv(dataset_config[dataset2index[self.dataset_id]]['path'], header=None).values
 
-        res = self.__run_experiment(token, params)
+        self.c1 = request.args['c1'] if 'c1' in request.args else self.c1
+        self.c2 = request.args['c2'] if 'c2' in request.args else self.c2
+        self.distance = request.args['distance'] if 'distance' in request.args else self.distance
+
+        res = self.__run_experiment(token)
 
         return res, SUCCESS
 
@@ -73,17 +89,17 @@ class KmeansExperiment(Resource):
         """
         token = str(uuid.uuid4())
 
-        c1 = request.form['c1'] if 'c1' in request.form else self.kmeans_config['c1']
-        c2 = request.form['c2'] if 'c2' in request.form else self.kmeans_config['c2']
-        distance = request.form['distance'] if 'distance' in request.form else self.kmeans_config['distance']
+        dataset_config = config['algorithms']['kmeans']['dataset']
+        dataset2index = {e['key']: i for i, e in enumerate(dataset_config)}
 
-        params = {
-            'c1': c1,
-            'c2': c2,
-            'distance': distance,
-        }
+        self.dataset_id = request.form['dataset']
+        self.dataset = pd.read_csv(dataset_config[dataset2index[self.dataset_id]]['path'], header=None).values
 
-        res = self.__run_experiment(token, params)
+        self.c1 = request.form['c1'] if 'c1' in request.form else self.c1
+        self.c2 = request.form['c2'] if 'c2' in request.form else self.c2
+        self.distance = request.form['distance'] if 'distance' in request.form else self.distance
+
+        res = self.__run_experiment(token)
 
         return res, SUCCESS
 

@@ -10,29 +10,34 @@
           {
             "key": "c1",
             "type": "integer",
-            "value": 2,
+            "value": 1
           },
           {
             "key": "c2",
             "type": "integer",
-            "value": 0,
+            "value": 2
           },
           {
             "key": "distance",
             "type": "distance_function",
-            "value": "euclidean",
+            "value": "euclidean"
           }
       ],
       "dataset": [
         {
           "key": "dataset1",
           "label": "Dataset 1",
-          "path": "resources/data/kmeans_db1.csv",
+          "path": "resources/data/clustering_dataset1.csv"
         },
         {
           "key": "dataset2",
           "label": "Dataset 2",
-          "path": "resources/data/kmeans_db2.csv",
+          "path": "resources/data/clustering_dataset2.csv"
+        },
+        {
+          "key": "dataset3",
+          "label": "Dataset 3",
+          "path": "resources/data/clustering_dataset3.csv"
         }
       ],
       "distance_function": [
@@ -42,7 +47,7 @@
         },
         {
           "key": "manhattan",
-          "label": "Manhattan",
+          "label": "Manhattan"
         }
       ]
     }
