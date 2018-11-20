@@ -1,7 +1,8 @@
 # DDM_Rest
 This Repository is the backend for the [Didactic Data Mining Tool](https://github.com/rinziv/DDM).
 
-# Installing
+# Execute this project
+## Installing
 In order to install and the execute this repo, you have to install all your dependencies:
 ```
 pip3 install -r requirements.txt
@@ -16,7 +17,7 @@ cd ..
 python3 ddmrest.py
 ```
 
-# Installing all dependencies in a virtualenv
+## Installing all dependencies in a virtualenv
 First of all, if you haven't already installed `virtualenv`
 ```
 pip install virtualenv
@@ -27,6 +28,11 @@ virtualenv -p `which python3` .
 source bin/activate
 pip install -r requirements.txt
 python ddmrest.py
+```
+## Run Docker Container
+In order to run the docker container you can build your image using the `Dockerfile` or just type
+```bash
+docker run -p 5000:5000 alessandro308/ddm_rest
 ```
 
 # External dependencies
