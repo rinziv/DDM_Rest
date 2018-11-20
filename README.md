@@ -30,7 +30,8 @@ pip install -r requirements.txt
 python ddmrest.py
 ```
 ## Run Docker Container
-In order to run the docker container you can build your image using the `Dockerfile` or just type
+If you prefer to not install all dependencies on your machine, you can run this application in a docker container.
+You can build your own image using the `Dockerfile` or just use the prebuilt version:
 ```bash
 docker run -p 5000:5000 alessandro308/ddm_rest
 ```
